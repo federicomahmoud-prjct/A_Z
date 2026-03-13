@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOMEN — Band Registry</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Major+Mono+Display&family=Playfair+Display:wght@900&family=Sometype+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #111111;
+    --surface: #1c1c1c;
+    --surface2: #252525;
+    --border: #2e2e2e;
+    --text: #f0f0f0;
+    --muted: #888888;
+    --accent: #e8e8e8;
+    --accent2: #aaaaaa;
+    --accent3: #cccccc;
+    --green: #6ee7b7;
+    --radius: 12px;
+    --mono: 'Major Mono Display', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+    backdrop-filter: blur(12px);
+    background: rgba(17,17,17,0.92);
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .header-inner {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+
+
+  .header-counter {
+    display: flex; align-items: baseline; gap: 8px;
+  }
+
+  .header-counter #header-total {
+    font-family: 'Geist Mono', monospace;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1;
+    color: #e8a0a0;
+    background: rgba(120, 15, 15, 0.18);
+    border: 1px solid rgba(160, 30, 20, 0.25);
+    box-shadow: 0 0 18px rgba(140, 20, 10, 0.20), inset 0 0 10px rgba(140, 20, 10, 0.10);
+    padding: 0 18px;
+    border-radius: 20px;
+    height: 46px;
+    display: flex; align-items: center;
+  }
+
+  .header-counter-label { display: none; }
+
+  /* ── MAIN GRID ── */
+  .main-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px 0;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .card-title::before {
+    content: '';
+    width: 3px; height: 12px;
+    background: var(--muted);
+    border-radius: 2px;
+    display: block;
+  }
+
+  .btn-add {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: #b0b0b0;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s, background .2s, box-shadow .2s, color .2s, border-color .2s;
+    flex-shrink: 0;
+  }
+
+  .btn-add:hover {
+    background: rgba(120, 15, 15, 0.18);
+    border-color: rgba(160, 30, 20, 0.25);
+    color: #e8a0a0;
+    box-shadow: 0 0 18px rgba(140, 20, 10, 0.20), inset 0 0 10px rgba(140, 20, 10, 0.10);
+  }
+
+
+
+  /* ── SEARCH ── */
+  .search-wrap { position: relative; margin-bottom: 14px; }
+
+  .search-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 12px 16px 12px 42px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--muted);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+  }
+
+  .search-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 14px;
+  }
+
+  /* ── KEY PAD ── */
+  .keypad {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .key {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    user-select: none;
+  }
+
+  .key:hover { background: var(--border); color: var(--text); }
+
+  .key.active {
+    background: var(--surface2);
+    color: white;
+    border-color: transparent;
+
+  }
+
+
+  /* ── RESULTS LIST ── */
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .results-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .clear-filter {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .15s;
+    display: none;
+  }
+
+  .clear-filter.visible { display: block; }
+  .clear-filter:hover { border-color: var(--muted); color: var(--text); }
+
+  .band-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .band-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all .15s;
+    animation: fadeIn .2s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .band-row:hover { border-color: var(--border); background: var(--surface2); }
+
+  .band-iso {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    width: 36px;
+    flex-shrink: 0;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: color .15s;
+  }
+
+  .band-iso:hover { color: var(--muted); }
+
+  .band-name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #b0b0b0;
+    flex: 1;
+  }
+
+  .band-name:hover { color: var(--accent); }
+
+  /* ── MODAL ── */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    animation: slideUp .25s ease;
+    overflow: hidden;
+  }
+
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(.97); } to { opacity: 1; transform: none; } }
+
+  .modal-header {
+    padding: 24px 24px 0;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .modal-title {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .modal-subtitle {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    flex-shrink: 0;
+  }
+
+  .modal-close:hover { background: var(--border); color: var(--text); }
+
+  .modal-body { padding: 0 24px 24px; }
+
+  /* Form */
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Manrope', sans-serif;
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  .form-control {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+  }
+
+  .form-control:focus {
+    border-color: var(--muted);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+  }
+
+  select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .btn-save {
+    width: 100%;
+    background: var(--surface2);
+    border: none;
+    color: white;
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 13px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 4px;
+    letter-spacing: .5px;
+    transition: opacity .2s, transform .15s;
+  }
+
+  .btn-save:hover { opacity: .9; transform: translateY(-1px); }
+
+  /* ── DETAIL OVERLAY ── */
+  .detail-modal .modal { max-width: 420px; }
+
+  .detail-band-name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #b0b0b0;
+    line-height: 1.2;
+  }
+
+  .detail-rows { display: flex; flex-direction: column; gap: 16px; margin: 20px 0; }
+
+  .detail-row {
+    display: flex; flex-direction: column; gap: 5px;
+  }
+
+  .detail-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .detail-value {
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #b0b0b0;
+    line-height: 1.4;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 14px;
+  }
+
+  .related-link {
+    color: #b0b0b0;
+    cursor: pointer;
+    text-decoration: none;
+    margin-right: 8px;
+    transition: color .15s;
+  }
+
+  .related-link:hover { color: #e8a0a0; }
+
+  .detail-actions { display: flex; gap: 10px; }
+
+  .btn-edit, .btn-delete {
+    flex: 1;
+    padding: 10px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all .15s;
+  }
+
+  .btn-edit:hover { border-color: var(--muted); color: var(--text); }
+  .btn-delete:hover { border-color: #ef4444; color: #ef4444; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 0;
+    margin-top: 20px;
+  }
+
+  .footer-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+
+  .footer-copy {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .footer-btns { display: flex; gap: 10px; }
+
+  .btn-footer {
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    transition: all .15s;
+  }
+
+  .btn-footer:hover { border-color: var(--muted); color: var(--text); }
+
+
+
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state i { font-size: 36px; margin-bottom: 12px; display: block; opacity: .4; }
+  .empty-state p { font-size: 14px; }
+
+
+  /* ── BAR CHART ── */
+  .bar-chart { display: flex; flex-direction: column; gap: 7px; }
+
+  .bar-row {
+    display: flex; align-items: center;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 4px 6px;
+    transition: background .15s;
+  }
+
+  .bar-row:hover { background: var(--surface2); }
+  .bar-row.active { background: rgba(255,255,255,0.06); }
+
+  .bar-label {
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; flex-shrink: 0;
+    margin-right: 12px;
+  }
+
+  .bar-flag {
+    width: 32px;
+    height: 22px;
+    border-radius: 3px;
+    background-size: cover;
+    background-position: center;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 22px;
+    background: var(--surface2);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    min-width: 4px;
+    opacity: 0.85;
+  }
+
+  .bar-fill:hover { opacity: 1; }
+
+  .bar-num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 15px;
+    font-weight: 400;
+    color: #b0b0b0;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+
+
+
+  /* ── CHIPS (risultati per stato) ── */
+  .band-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    animation: fadeIn .2s ease;
+  }
+
+  .band-chip {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #b0b0b0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+    white-space: nowrap;
+  }
+
+  .band-chip:hover {
+    background: rgba(120, 15, 15, 0.18);
+    border-color: rgba(160, 30, 20, 0.25);
+    color: #e8a0a0;
+    box-shadow: 0 0 18px rgba(140, 20, 10, 0.20), inset 0 0 10px rgba(140, 20, 10, 0.10);
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 9999;
+    box-shadow: 0 10px 40px rgba(0,0,0,.4);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all .3s ease;
+    max-width: 300px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── Custom scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="wrap header-inner">
+    <button class="btn-add" id="btn-add" title="Aggiungi Band"><i class="fa fa-plus"></i></button>
+    <div class="header-counter">
+      <span id="header-total">0</span>
+      <span class="header-counter-label">band inserite</span>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="wrap">
+  <div class="main-grid">
+
+    <!-- BAR CHART -->
+    <div class="card" id="bar-chart-card">
+      <div id="bar-chart-wrap">
+        <div class="empty-state" style="padding:30px 20px">
+          <i class="fa fa-chart-bar"></i>
+          <p>Aggiungi band per vedere la distribuzione geografica</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH + RESULTS -->
+    <div class="card">
+      <div class="search-wrap" style="margin-bottom:12px">
+        <i class="fa fa-search search-icon"></i>
+        <input class="search-input" id="search-input" placeholder="Cerca band..." autocomplete="off">
+      </div>
+      <div class="results-header">
+        <div class="results-count" id="results-count">0 BAND</div>
+        <button class="clear-filter" id="clear-filter-btn" onclick="clearAllFilters()">✕ Rimuovi filtri</button>
+      </div>
+      <div class="band-list" id="band-list">
+        <div class="empty-state">
+          <i class="fa fa-music"></i>
+          <p>Nessuna band ancora.<br>Usa il tasto <strong>+</strong> per aggiungerne una!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap footer-inner">
+    <div></div>
+    <div class="footer-btns">
+      <button class="btn-footer" onclick="exportJSON()">
+        <i class="fa fa-download"></i> Backup JSON
+      </button>
+      <button class="btn-footer" onclick="document.getElementById('import-input').click()">
+        <i class="fa fa-upload"></i> Importa JSON
+      </button>
+      <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+  </div>
+</footer>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-backdrop" id="form-modal">
+  <div class="modal">
+    <div class="modal-header" style="padding:0"></div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input class="form-control" id="f-name" placeholder="es. Iron Maiden" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alias</label>
+        <input class="form-control" id="f-related" placeholder="es. vecchi nomi (opz.)">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Stato</label>
+          <select class="form-control" id="f-country"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Luogo di provenienza</label>
+          <input class="form-control" id="f-city" placeholder="es. Milano (opz.)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Connessioni</label>
+        <input class="form-control" id="f-connections" placeholder="es. Judas Priest, Accept (opz.)">
+      </div>
+      <button class="btn-save" onclick="saveBand()">
+        <i class="fa fa-check"></i> Salva
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-backdrop detail-modal" id="detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="detail-band-name" id="d-name"></div>
+      </div>
+      <button class="modal-close" onclick="closeDetailModal()"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-rows" id="detail-rows"></div>
+      <div class="detail-actions">
+        <button class="btn-edit" id="d-edit"><i class="fa fa-pen"></i> Modifica</button>
+        <button class="btn-delete" id="d-delete"><i class="fa fa-trash"></i> Elimina</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const COUNTRIES = [
+  ["AD","Andorra"],["AE","Emirati Arabi Uniti"],["AF","Afghanistan"],["AG","Antigua e Barbuda"],["AI","Anguilla"],["AL","Albania"],["AM","Armenia"],["AO","Angola"],["AQ","Antartide"],["AR","Argentina"],["AS","Samoa Americane"],["AT","Austria"],["AU","Australia"],["AW","Aruba"],["AX","Isole Åland"],["AZ","Azerbaigian"],["BA","Bosnia ed Erzegovina"],["BB","Barbados"],["BD","Bangladesh"],["BE","Belgio"],["BF","Burkina Faso"],["BG","Bulgaria"],["BH","Bahrein"],["BI","Burundi"],["BJ","Benin"],["BL","Saint-Barthélemy"],["BM","Bermuda"],["BN","Brunei"],["BO","Bolivia"],["BQ","Caraibi Olandesi"],["BR","Brasile"],["BS","Bahamas"],["BT","Bhutan"],["BV","Isola Bouvet"],["BW","Botswana"],["BY","Bielorussia"],["BZ","Belize"],["CA","Canada"],["CC","Isole Cocos"],["CD","Rep. Dem. del Congo"],["CF","Rep. Centrafricana"],["CG","Congo"],["CH","Svizzera"],["CI","Costa d'Avorio"],["CK","Isole Cook"],["CL","Cile"],["CM","Camerun"],["CN","Cina"],["CO","Colombia"],["CR","Costa Rica"],["CU","Cuba"],["CV","Capo Verde"],["CW","Curaçao"],["CX","Isola Christmas"],["CY","Cipro"],["CZ","Repubblica Ceca"],["DE","Germania"],["DJ","Gibuti"],["DK","Danimarca"],["DM","Dominica"],["DO","Rep. Dominicana"],["DZ","Algeria"],["EC","Ecuador"],["EE","Estonia"],["EG","Egitto"],["EH","Sahara Occidentale"],["ER","Eritrea"],["ES","Spagna"],["ET","Etiopia"],["FI","Finlandia"],["FJ","Figi"],["FK","Isole Falkland"],["FM","Micronesia"],["FO","Isole Fær Øer"],["FR","Francia"],["GA","Gabon"],["GB","Regno Unito"],["GD","Grenada"],["GE","Georgia"],["GF","Guyana Francese"],["GG","Guernsey"],["GH","Ghana"],["GI","Gibilterra"],["GL","Groenlandia"],["GM","Gambia"],["GN","Guinea"],["GP","Guadalupa"],["GQ","Guinea Equatoriale"],["GR","Grecia"],["GS","Georgia del Sud e Sandwich Australi"],["GT","Guatemala"],["GU","Guam"],["GW","Guinea-Bissau"],["GY","Guyana"],["HK","Hong Kong"],["HM","Isole Heard e McDonald"],["HN","Honduras"],["HR","Croazia"],["HT","Haiti"],["HU","Ungheria"],["ID","Indonesia"],["IE","Irlanda"],["IL","Israele"],["IM","Isola di Man"],["IN","India"],["IO","Territorio Britannico dell'Oceano Indiano"],["IQ","Iraq"],["IR","Iran"],["IS","Islanda"],["IT","Italia"],["JE","Jersey"],["JM","Giamaica"],["JO","Giordania"],["JP","Giappone"],["KE","Kenya"],["KG","Kirghizistan"],["KH","Cambogia"],["KI","Kiribati"],["KM","Comore"],["KN","Saint Kitts e Nevis"],["KP","Corea del Nord"],["KR","Corea del Sud"],["KW","Kuwait"],["KY","Isole Cayman"],["KZ","Kazakistan"],["LA","Laos"],["LB","Libano"],["LC","Saint Lucia"],["LI","Liechtenstein"],["LK","Sri Lanka"],["LR","Liberia"],["LS","Lesotho"],["LT","Lituania"],["LU","Lussemburgo"],["LV","Lettonia"],["LY","Libia"],["MA","Marocco"],["MC","Monaco"],["MD","Moldavia"],["ME","Montenegro"],["MF","Saint-Martin"],["MG","Madagascar"],["MH","Isole Marshall"],["MK","Macedonia del Nord"],["ML","Mali"],["MM","Myanmar"],["MN","Mongolia"],["MO","Macao"],["MP","Isole Marianne Settentrionali"],["MQ","Martinica"],["MR","Mauritania"],["MS","Montserrat"],["MT","Malta"],["MU","Mauritius"],["MV","Maldive"],["MW","Malawi"],["MX","Messico"],["MY","Malaysia"],["MZ","Mozambico"],["NA","Namibia"],["NC","Nuova Caledonia"],["NE","Niger"],["NF","Isola Norfolk"],["NG","Nigeria"],["NI","Nicaragua"],["NL","Paesi Bassi"],["NO","Norvegia"],["NP","Nepal"],["NR","Nauru"],["NU","Niue"],["NZ","Nuova Zelanda"],["OM","Oman"],["PA","Panama"],["PE","Perù"],["PF","Polinesia Francese"],["PG","Papua Nuova Guinea"],["PH","Filippine"],["PK","Pakistan"],["PL","Polonia"],["PM","Saint-Pierre e Miquelon"],["PN","Isole Pitcairn"],["PR","Porto Rico"],["PS","Palestina"],["PT","Portogallo"],["PW","Palau"],["PY","Paraguay"],["QA","Qatar"],["RE","Riunione"],["RO","Romania"],["RS","Serbia"],["RU","Russia"],["RW","Ruanda"],["SA","Arabia Saudita"],["SB","Isole Salomone"],["SC","Seychelles"],["SD","Sudan"],["SE","Svezia"],["SG","Singapore"],["SH","Sant'Elena"],["SI","Slovenia"],["SJ","Svalbard e Jan Mayen"],["SK","Slovacchia"],["SL","Sierra Leone"],["SM","San Marino"],["SN","Senegal"],["SO","Somalia"],["SR","Suriname"],["SS","Sudan del Sud"],["ST","São Tomé e Príncipe"],["SV","El Salvador"],["SX","Sint Maarten"],["SY","Siria"],["SZ","Eswatini"],["TC","Isole Turks e Caicos"],["TD","Ciad"],["TF","Terre Australi e Antartiche Francesi"],["TG","Togo"],["TH","Thailandia"],["TJ","Tagikistan"],["TK","Tokelau"],["TL","Timor Est"],["TM","Turkmenistan"],["TN","Tunisia"],["TO","Tonga"],["TR","Turchia"],["TT","Trinidad e Tobago"],["TV","Tuvalu"],["TW","Taiwan"],["TZ","Tanzania"],["UA","Ucraina"],["UG","Uganda"],["UM","Isole minori esterne degli Stati Uniti"],["US","Stati Uniti"],["UY","Uruguay"],["UZ","Uzbekistan"],["VA","Città del Vaticano"],["VC","Saint Vincent e Grenadine"],["VE","Venezuela"],["VG","Isole Vergini Britanniche"],["VI","Isole Vergini Americane"],["VN","Vietnam"],["VU","Vanuatu"],["WF","Wallis e Futuna"],["WS","Samoa"],["XK","Kosovo"],["YE","Yemen"],["YT","Mayotte"],["ZA","Sudafrica"],["ZM","Zambia"],["ZW","Zimbabwe"],
+  ["++","Altro"]
+];
+
+let bands = JSON.parse(localStorage.getItem('albo-bands') || '[]');
+let activeFilter = null; // { type: 'letter'|'country'|'map', value }
+let searchQuery = '';
+let currentDetailId = null;
+
+function save() { localStorage.setItem('albo-bands', JSON.stringify(bands)); }
+
+function getFiltered() {
+  let list = [...bands];
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(b => b.name.toLowerCase().includes(q));
+  }
+  if (activeFilter) {
+    if (activeFilter.type === 'letter') {
+      list = list.filter(b => b.name.toLowerCase().startsWith(activeFilter.value.toLowerCase()));
+    } else if (activeFilter.type === 'country') {
+      list = list.filter(b => b.country === activeFilter.value);
+    }
+  }
+  return list.sort((a,b) => a.name.localeCompare(b.name));
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function render() {
+  updateCounter();
+  renderList();
+  renderChart();
+}
+
+function updateCounter() {
+  const n = bands.length;
+  const ht = document.getElementById('header-total');
+  if (ht) ht.textContent = n;
+}
+
+function renderList() {
+  const list = getFiltered();
+  const el = document.getElementById('band-list');
+  const countEl = document.getElementById('results-count');
+  const clearBtn = document.getElementById('clear-filter-btn');
+
+  const hasQuery = !!(activeFilter || searchQuery.trim());
+  clearBtn.classList.toggle('visible', hasQuery);
+
+  if (!hasQuery) {
+    countEl.textContent = '';
+    el.innerHTML = '';
+    return;
+  }
+
+  countEl.textContent = '';
+
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state">
+      <i class="fa fa-search"></i>
+      <p>Nessun risultato trovato.</p>
+    </div>`;
+    return;
+  }
+
+  const countryFilter = activeFilter?.type === 'country';
+  if (countryFilter) {
+    el.innerHTML = `<div class="band-chips">${
+      list.sort((a,b) => a.name.localeCompare(b.name))
+          .map(b => `<span class="band-chip" onclick="openDetail('${b.id}')">${b.name}</span>`)
+          .join('')
+    }</div>`;
+    return;
+  }
+  el.innerHTML = list.map(b => {
+    const isoL = b.country.toLowerCase();
+    const flagEl = b.country !== '++'
+      ? `<span class="fi fi-${isoL} bar-flag" style="cursor:pointer" onclick="filterByCountry('${b.country}', event)"></span>`
+      : `<i class="fa fa-globe" style="font-size:18px;color:var(--muted);cursor:pointer" onclick="filterByCountry('${b.country}', event)"></i>`;
+    return `<div class="band-row" data-id="${b.id}">
+      <div class="bar-label">${flagEl}</div>
+      <div class="band-name" onclick="openDetail('${b.id}')">${b.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function highlight(text) {
+  if (!searchQuery.trim()) return text;
+  const re = new RegExp(`(${escapeRe(searchQuery)})`, 'gi');
+  return text.replace(re, '<mark style="background:rgba(255,255,255,.12);color:var(--text);border-radius:3px;">$1</mark>');
+}
+
+function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// ─────────────────────────────────────────────
+// BAR CHART — distribuzione geografica orizzontale
+// ─────────────────────────────────────────────
+const PASTEL = ['#93c5fd','#86efac','#fca5a5','#fcd34d','#f9a8d4','#c4b5fd','#67e8f9','#fdba74','#6ee7b7','#fed7aa','#e9d5ff','#fde68a','#fbcfe8','#a7f3d0','#bae6fd','#fecaca','#a5f3fc','#d9f99d','#fde68a','#c7d2fe'];
+
+// Assign colors so no two adjacent bars share a similar hue.
+// Strategy: pick from PASTEL using a step of 7 (coprime with 20) so
+// consecutive indices are far apart in the palette.
+function assignColors(n) {
+  const STEP = 7;
+  const used = new Array(n);
+  for (let i = 0; i < n; i++) {
+    used[i] = PASTEL[(i * STEP) % PASTEL.length];
+  }
+  return used;
+}
+
+function renderChart() {
+  const wrap = document.getElementById('bar-chart-wrap');
+  const totals = {};
+  bands.forEach(b => { totals[b.country] = (totals[b.country] || 0) + 1; });
+  // Sort alphabetically by ISO code
+  const sorted = Object.entries(totals).sort((a, b) => a[0].localeCompare(b[0]));
+
+  if (!sorted.length) {
+    wrap.innerHTML = `<div class="empty-state" style="padding:30px 20px">
+      <i class="fa fa-chart-bar"></i>
+      <p>Aggiungi band per vedere la distribuzione geografica</p>
+    </div>`;
+    return;
+  }
+
+  const total = sorted.reduce((sum, [,c]) => sum + c, 0);
+  const colors = assignColors(sorted.length);
+
+  let rows = sorted.map(([iso, cnt], i) => {
+    const pct = Math.round(cnt / total * 100);
+    const color = colors[i];
+    const isoLower = iso.toLowerCase();
+    const flagEl = iso !== '++'
+      ? `<span class="fi fi-${isoLower} bar-flag"></span>`
+      : `<i class="fa fa-globe" style="font-size:18px;color:var(--muted)"></i>`;
+    return `<div class="bar-row" onclick="filterByCountry('${iso}')" title="${COUNTRIES.find(c=>c[0]===iso)?.[1]||iso}">
+      <div class="bar-label">
+        ${flagEl}
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%;background:${color};"></div>
+      </div>
+      <div class="bar-num">${cnt}</div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = `<div class="bar-chart">${rows}</div>`;
+}
+
+// ─────────────────────────────────────────────
+// FILTERS
+// ─────────────────────────────────────────────
+function filterByCountry(iso, e) {
+  if (e) { e.stopPropagation(); }
+  if (activeFilter?.type === 'country' && activeFilter.value === iso) {
+    activeFilter = null;
+  } else {
+    activeFilter = { type: 'country', value: iso };
+  }
+  clearKeypad();
+  renderList();
+}
+
+function filterByLetter(char) {
+  if (activeFilter?.type === 'letter' && activeFilter.value === char) {
+    activeFilter = null;
+    clearKeypad();
+  } else {
+    activeFilter = { type: 'letter', value: char };
+    document.querySelectorAll('.key').forEach(k => k.classList.toggle('active', k.dataset.key === char));
+  }
+  renderList();
+}
+
+function clearKeypad() {
+  document.querySelectorAll('.key').forEach(k => k.classList.remove('active'));
+}
+
+function clearAllFilters() {
+  activeFilter = null;
+  searchQuery = '';
+  document.getElementById('search-input').value = '';
+  clearKeypad();
+  renderList();
+}
+
+// ─────────────────────────────────────────────
+// KEYPAD
+// ─────────────────────────────────────────────
+function buildKeypad() {
+  const pad = document.getElementById('keypad');
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  pad.innerHTML = chars.map(c => `<div class="key" data-key="${c}" onclick="filterByLetter('${c}')">${c}</div>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// FORM MODAL
+// ─────────────────────────────────────────────
+function openFormModal(id = null) {
+  const modal = document.getElementById('form-modal');
+  document.getElementById('edit-id').value = id || '';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-country').value = 'IT';
+  document.getElementById('f-city').value = '';
+  document.getElementById('f-related').value = '';
+  document.getElementById('f-connections').value = '';
+  if (id) {
+    const b = bands.find(x => x.id === id);
+    if (b) {
+      document.getElementById('f-name').value = b.name;
+      document.getElementById('f-country').value = b.country;
+      document.getElementById('f-city').value = b.city || '';
+      document.getElementById('f-related').value = b.related || '';
+      document.getElementById('f-connections').value = b.connections || '';
+    }
+  }
+
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 100);
+}
+
+function closeFormModal() {
+  document.getElementById('form-modal').classList.remove('open');
+}
+
+function saveBand() {
+  const name = document.getElementById('f-name').value.trim();
+  const country = document.getElementById('f-country').value;
+  const city = document.getElementById('f-city').value.trim();
+  const related = document.getElementById('f-related').value.trim();
+  const connections = document.getElementById('f-connections').value.trim();
+  const editId = document.getElementById('edit-id').value;
+
+  if (!name) { showToast('Il nome è obbligatorio!', true); return; }
+
+  if (editId) {
+    const idx = bands.findIndex(b => b.id === editId);
+    if (idx !== -1) { bands[idx] = { ...bands[idx], name, country, city, related, connections }; }
+    showToast('Band aggiornata!');
+  } else {
+    bands.push({ id: Date.now().toString(), name, country, city, related, connections });
+    showToast('Band aggiunta!');
+  }
+
+  save(); closeFormModal(); render();
+}
+
+// ─────────────────────────────────────────────
+// DETAIL MODAL
+// ─────────────────────────────────────────────
+function openDetail(id) {
+  const b = bands.find(x => x.id === id);
+  if (!b) return;
+  currentDetailId = id;
+
+  document.getElementById('d-name').textContent = b.name;
+
+  const rows = [];
+  const countryName = COUNTRIES.find(c => c[0] === b.country)?.[1] || b.country;
+  rows.push(`<div class="detail-row">
+    <span class="detail-label">Stato</span>
+    <div class="detail-value">${countryName}</div>
+  </div>`);
+
+  if (b.related) {
+    rows.push(`<div class="detail-row">
+      <span class="detail-label">Alias</span>
+      <div class="detail-value">${b.related}</div>
+    </div>`);
+  }
+
+  if (b.city) {
+    rows.push(`<div class="detail-row">
+      <span class="detail-label">Luogo di provenienza</span>
+      <div class="detail-value">${b.city}</div>
+    </div>`);
+  }
+
+  if (b.connections) {
+    const conns = b.connections.split(',').map(r => r.trim()).filter(Boolean);
+    const links = conns.map(r => {
+      const found = bands.find(x => x.name.toLowerCase() === r.toLowerCase());
+      return found
+        ? `<span class="related-link" onclick="openDetail('${found.id}')">${r}</span>`
+        : `<span style="color:#b0b0b0">${r}</span>`;
+    }).join(', ');
+    rows.push(`<div class="detail-row">
+      <span class="detail-label">Connessioni</span>
+      <div class="detail-value">${links}</div>
+    </div>`);
+  }
+
+  document.getElementById('detail-rows').innerHTML = rows.join('');
+  document.getElementById('d-edit').onclick = () => { closeDetailModal(); openFormModal(id); };
+  document.getElementById('d-delete').onclick = () => deleteBand(id);
+
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeDetailModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+  currentDetailId = null;
+}
+
+function deleteBand(id) {
+  if (!confirm('Eliminare questa band?')) return;
+  bands = bands.filter(b => b.id !== id);
+  save(); closeDetailModal(); render();
+  showToast('Band eliminata.');
+}
+
+// ─────────────────────────────────────────────
+// SELECT COUNTRIES
+// ─────────────────────────────────────────────
+function buildCountrySelect() {
+  const sel = document.getElementById('f-country');
+  sel.innerHTML = COUNTRIES.map(([code, name]) =>
+    `<option value="${code}">${code} — ${name}</option>`
+  ).join('');
+  sel.value = 'IT';
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderLeftColor = isError ? '#ef4444' : 'var(--green)';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────────────
+// BACKUP / IMPORT
+// ─────────────────────────────────────────────
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(bands, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `albo-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('Backup scaricato!');
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!Array.isArray(data)) throw new Error('Formato non valido');
+      bands = data;
+      save(); render();
+      showToast(`Importate ${data.length} band!`);
+    } catch(err) {
+      showToast('Errore: file non valido', true);
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ─────────────────────────────────────────────
+// WORLD MAP — D3 + TopoJSON (Natural Earth)
+// ─────────────────────────────────────────────
+let mapPathFn, mapSvg;
+
+
+
+// ─────────────────────────────────────────────
+// CLOSE ON BACKDROP CLICK
+// ─────────────────────────────────────────────
+document.getElementById('form-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('form-modal')) closeFormModal();
+});
+document.getElementById('detail-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-modal')) closeDetailModal();
+});
+
+// KEYBOARD
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeFormModal(); closeDetailModal(); }
+});
+
+// SEARCH
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderList();
+});
+
+// ADD BTN
+document.getElementById('btn-add').addEventListener('click', () => openFormModal());
+
+// ENTER in form
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('form-modal').classList.contains('open')) {
+    saveBand();
+  }
+});
+
+// DATE
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+buildCountrySelect();
+render();
+</script>
+</body>
+</html>
