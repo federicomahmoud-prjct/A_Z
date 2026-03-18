@@ -9,7 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Major+Mono+Display&family=Playfair+Display:wght@900&family=Sometype+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Google+Sans+Code:wght@400&family=Manrope:wght@400;500;600;700;800&family=Major+Mono+Display&family=Playfair+Display:wght@900&family=Sometype+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
   :root {
     --bg: #111111;
@@ -80,7 +80,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 28px 0;
+    padding: 20px 0;
   }
 
   /* ── CARDS ── */
@@ -464,7 +464,7 @@
   footer {
     border-top: 1px solid var(--border);
     padding: 20px 0;
-    margin-top: 20px;
+    margin-top: 0;
   }
 
   .footer-inner {
@@ -628,6 +628,101 @@
   #world-svg g.map-active > path {
     fill: rgba(120, 15, 15, 0.50);
     filter: drop-shadow(0 0 6px rgba(140, 20, 10, 0.50));
+  }
+
+
+  /* ── TIMELINE ── */
+  .timeline-wrap {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 8px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .timeline-decade {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 3px;
+  }
+
+  .timeline-decade-label {
+    display: none;
+  }
+
+  .timeline-years {
+    display: contents;
+  }
+
+  .yr {
+    font-family: 'Google Sans Code', monospace;
+    font-size: 14px;
+    font-weight: 400;
+    flex: 1;
+    height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    line-height: 1;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: default;
+    transition: opacity .15s;
+    position: relative;
+  }
+
+  .yr.dim {
+    background: transparent;
+    color: #2e2e2e;
+    border-color: transparent;
+  }
+
+  .yr.active {
+    background: transparent;
+    color: #2e2e2e;
+    border-color: transparent;
+  }
+
+  .yr.release-lp,
+  .yr.release-ep,
+  .yr.release-singolo,
+  .yr.founded {
+    cursor: pointer;
+    color: #b0b0b0;
+  }
+
+  .yr.release-lp::after,
+  .yr.release-ep::after,
+  .yr.release-singolo::after {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .yr.release-lp::after { background: #4a8a5a; }
+  .yr.release-ep::after { background: #5a7fa0; }
+  .yr.release-singolo::after { background: #c8a440; }
+
+  .yr-tooltip {
+    position: fixed;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: #b0b0b0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 9px;
+    border-radius: 6px;
+    pointer-events: none;
+    display: none;
+    z-index: 9999;
+    white-space: pre;
   }
 
   /* ── CHIPS (risultati per stato) ── */
@@ -1162,6 +1257,7 @@
 
 <!-- ADD/EDIT MODAL -->
 <div id="map-tooltip"></div>
+<div id="yr-tooltip" class="yr-tooltip"></div>
 
 <div class="modal-backdrop" id="form-modal">
   <div class="modal">
@@ -1185,6 +1281,17 @@
           <label class="form-label">Luogo di provenienza</label>
           <input class="form-control" id="f-city" placeholder="es. Milano (opz.)">
         </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Anno di fondazione</label>
+          <input class="form-control" id="f-founded" placeholder="es. 1981 (opz.)" type="number" min="1900" max="2099">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Discografia</label>
+        <div id="f-disco-list"></div>
+        <button type="button" onclick="addDiscoRow()" style="margin-top:8px; background:var(--surface2); border:1px solid var(--border); color:#b0b0b0; font-family:'Manrope',sans-serif; font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer; width:100%;">+ Aggiungi release</button>
       </div>
       <div class="form-group">
         <label class="form-label">Connessioni</label>
@@ -1430,6 +1537,129 @@ function buildKeypad() {
   pad.innerHTML = chars.map(c => `<div class="key" data-key="${c}" onclick="filterByLetter('${c}')">${c}</div>`).join('');
 }
 
+
+// ─────────────────────────────────────────────
+// DISCOGRAPHY FORM
+// ─────────────────────────────────────────────
+function addDiscoRow(data = {}) {
+  const wrap = document.getElementById('f-disco-list');
+  const row = document.createElement('div');
+  row.className = 'disco-row';
+  row.style.cssText = 'display:grid; grid-template-columns:80px 90px 1fr 28px 22px; gap:6px; margin-bottom:6px; align-items:center;';
+  row.innerHTML = `
+    <input class="form-control disco-year" type="number" min="1900" max="2099" placeholder="Anno" value="${data.year || ''}" style="padding:8px 10px; font-size:13px;">
+    <select class="form-control disco-type" style="padding:8px 10px; font-size:13px;">
+      <option value="lp"${data.type==='lp'?' selected':''}>LP</option>
+      <option value="ep"${data.type==='ep'?' selected':''}>EP</option>
+      <option value="singolo"${data.type==='singolo'?' selected':''}>Singolo</option>
+    </select>
+    <input class="form-control disco-title" type="text" placeholder="Titolo (opz.)" value="${data.title || ''}" style="padding:8px 10px; font-size:13px;">
+    <button type="button" onclick="this.closest('.disco-row').remove()" style="background:transparent; border:1px solid var(--border); color:var(--muted); border-radius:6px; cursor:pointer; height:36px; font-size:14px;">×</button>
+    <div style="display:flex; flex-direction:column; gap:2px;">
+      <button type="button" onclick="moveDiscoRow(this.closest('.disco-row'), -1)" style="background:transparent; border:none; color:var(--muted); cursor:pointer; padding:0; font-size:10px; line-height:1;">▲</button>
+      <button type="button" onclick="moveDiscoRow(this.closest('.disco-row'), 1)" style="background:transparent; border:none; color:var(--muted); cursor:pointer; padding:0; font-size:10px; line-height:1;">▼</button>
+    </div>
+  `;
+  wrap.appendChild(row);
+}
+
+function moveDiscoRow(row, dir) {
+  const wrap = document.getElementById('f-disco-list');
+  const rows = Array.from(wrap.querySelectorAll('.disco-row'));
+  const idx = rows.indexOf(row);
+  const target = idx + dir;
+  if (target < 0 || target >= rows.length) return;
+  if (dir === -1) wrap.insertBefore(row, rows[target]);
+  else wrap.insertBefore(rows[target], row);
+}
+
+// ─────────────────────────────────────────────
+// TIMELINE
+// ─────────────────────────────────────────────
+function renderTimeline(b) {
+  const container = document.getElementById('detail-rows');
+
+  // Determine start year
+  const foundedYear = b.founded ? parseInt(b.founded) : null;
+  const disco = b.disco || [];
+  const discoYears = disco.map(r => parseInt(r.year)).filter(y => !isNaN(y));
+
+  if (!foundedYear && discoYears.length === 0) return;
+
+  const startYear = foundedYear || Math.min(...discoYears);
+  const lastDiscoYear = discoYears.length > 0 ? Math.max(...discoYears) : startYear;
+  const endYear = lastDiscoYear;
+
+  const startDecade = Math.floor(startYear / 10) * 10;
+  const endDecade = Math.floor(endYear / 10) * 10;
+
+  // Build release map — multiple releases per year: same type shows both titles, else highest priority wins
+  const releaseMap = {};
+  const typePriority = { lp: 3, ep: 2, singolo: 1 };
+  disco.forEach(r => {
+    const y = parseInt(r.year);
+    if (isNaN(y)) return;
+    if (!releaseMap[y]) {
+      releaseMap[y] = { ...r, titles: r.title ? [r.title] : [] };
+    } else {
+      const existing = releaseMap[y];
+      if (r.type === existing.type) {
+        // Same type: merge titles alphabetically
+        if (r.title) existing.titles.push(r.title);
+        existing.titles.sort();
+      } else if ((typePriority[r.type] || 0) > (typePriority[existing.type] || 0)) {
+        // Higher priority type wins
+        releaseMap[y] = { ...r, titles: r.title ? [r.title] : [] };
+      }
+    }
+  });
+
+  const tooltip = document.getElementById('yr-tooltip');
+
+  let html = '<div class="detail-row"><span class="detail-label">Timeline</span><div class="timeline-wrap">';
+  for (let decade = startDecade; decade <= endDecade; decade += 10) {
+    html += `<div class="timeline-decade">`;
+
+    html += `<div class="timeline-years">`;
+    for (let y = decade; y < decade + 10; y++) {
+      const isDim = y < startYear;
+      const isActive = y >= startYear;
+      const isFounded = foundedYear && y === foundedYear;
+      const release = releaseMap[y];
+      const shortY = String(y).slice(2);
+
+      let cls = 'yr';
+      if (isDim) cls += ' dim';
+      else cls += ' active';
+      if (isFounded) cls += ' founded';
+      if (release) cls += ` release-${release.type}`;
+
+      const titleAttr = release?.titles?.length ? `data-title="${release.titles.join('\n')}"` : '';
+
+      html += `<div class="${cls}" ${titleAttr}>${shortY}</div>`;
+    }
+    html += `</div></div>`;
+  }
+  html += '</div></div>';
+
+  container.insertAdjacentHTML('beforeend', html);
+
+  // Tooltip events
+  container.querySelectorAll('.yr[data-title]').forEach(el => {
+    el.addEventListener('mouseenter', (e) => {
+      tooltip.innerText = el.dataset.title;
+      tooltip.style.display = 'block';
+    });
+    el.addEventListener('mousemove', (e) => {
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top = (e.clientY - 28) + 'px';
+    });
+    el.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+  });
+}
+
 // ─────────────────────────────────────────────
 // FORM MODAL
 // ─────────────────────────────────────────────
@@ -1441,6 +1671,8 @@ function openFormModal(id = null) {
   document.getElementById('f-city').value = '';
   document.getElementById('f-related').value = '';
   document.getElementById('f-connections').value = '';
+  document.getElementById('f-founded').value = '';
+  document.getElementById('f-disco-list').innerHTML = '';
   if (id) {
     const b = bands.find(x => x.id === id);
     if (b) {
@@ -1449,6 +1681,8 @@ function openFormModal(id = null) {
       document.getElementById('f-city').value = b.city || '';
       document.getElementById('f-related').value = b.related || '';
       document.getElementById('f-connections').value = b.connections || '';
+      document.getElementById('f-founded').value = b.founded || '';
+      (b.disco || []).forEach(r => addDiscoRow(r));
     }
   }
 
@@ -1466,16 +1700,22 @@ function saveBand() {
   const city = document.getElementById('f-city').value.trim();
   const related = document.getElementById('f-related').value.trim();
   const connections = document.getElementById('f-connections').value.trim();
+  const founded = document.getElementById('f-founded').value.trim();
+  const disco = Array.from(document.querySelectorAll('.disco-row')).map(row => ({
+    year: row.querySelector('.disco-year').value.trim(),
+    type: row.querySelector('.disco-type').value,
+    title: row.querySelector('.disco-title').value.trim()
+  })).filter(r => r.year).sort((a, b) => parseInt(a.year) - parseInt(b.year));
   const editId = document.getElementById('edit-id').value;
 
   if (!name) { showToast('Il nome è obbligatorio!', true); return; }
 
   if (editId) {
     const idx = bands.findIndex(b => b.id === editId);
-    if (idx !== -1) { bands[idx] = { ...bands[idx], name, country, city, related, connections }; }
+    if (idx !== -1) { bands[idx] = { ...bands[idx], name, country, city, related, connections, founded, disco }; }
     showToast('Band aggiornata!');
   } else {
-    bands.push({ id: Date.now().toString(), name, country, city, related, connections });
+    bands.push({ id: Date.now().toString(), name, country, city, related, connections, founded, disco });
     showToast('Band aggiunta!');
   }
 
@@ -1528,6 +1768,7 @@ function openDetail(id) {
   }
 
   document.getElementById('detail-rows').innerHTML = rows.join('');
+  renderTimeline(b);
   document.getElementById('d-edit').onclick = () => { closeDetailModal(); openFormModal(id); };
   document.getElementById('d-delete').onclick = () => deleteBand(id);
 
