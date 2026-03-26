@@ -400,6 +400,8 @@
     font-weight: 500;
     color: #b0b0b0;
     line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .detail-rows { display: flex; flex-direction: column; gap: 16px; margin: 20px 0; }
@@ -556,18 +558,7 @@
 
   .bar-fill:hover { opacity: 1; }
 
-  .bar-num {
-    font-family: 'Geist Mono', monospace;
-    font-size: 15px;
-    font-weight: 400;
-    color: #b0b0b0;
-    flex-shrink: 0;
-    margin-left: 12px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    height: 22px;
-  }
+
 
 
 
@@ -583,6 +574,38 @@
     font-size: 12px;
     font-weight: 500;
     padding: 5px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    display: none;
+    z-index: 9999;
+    white-space: nowrap;
+  }
+
+  #bar-tooltip-count {
+    position: fixed;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: #b0b0b0;
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    font-weight: 400;
+    padding: 4px 9px;
+    border-radius: 6px;
+    pointer-events: none;
+    display: none;
+    z-index: 9999;
+    white-space: nowrap;
+  }
+
+  #bar-tooltip-country {
+    position: fixed;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: #b0b0b0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 9px;
     border-radius: 6px;
     pointer-events: none;
     display: none;
@@ -630,102 +653,138 @@
     filter: drop-shadow(0 0 6px rgba(140, 20, 10, 0.50));
   }
 
+  /* ── ALBUM FILTER BTN ── */
+  .album-filter-btn, .ep-filter-btn, .demo-filter-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.5;
+    transition: opacity .15s;
+  }
 
-  /* ── TIMELINE ── */
-  .timeline-wrap {
-    background: var(--surface2);
+  .album-filter-btn { background: #4caf6e; }
+  .ep-filter-btn { background: #f5e642; }
+  .demo-filter-btn { background: #ef5350; }
+
+  .album-filter-btn.active,
+  .ep-filter-btn.active,
+  .demo-filter-btn.active { opacity: 1; }
+
+
+  /* ── STORIA ── */
+  .storia-wrap {
     border: 1px solid var(--border);
     border-radius: 9px;
-    padding: 8px 11px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 12px;
+    background: transparent;
   }
 
-  .timeline-decade {
+  .storia-row {
     display: flex;
-    flex-wrap: nowrap;
-    gap: 3px;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  .timeline-decade-label {
-    display: none;
+  .storia-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
   }
 
-  .timeline-years {
-    display: contents;
+  .storia-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3a3a3a;
   }
 
-  .yr {
-    font-family: 'Google Sans Code', monospace;
+  .storia-label {
+    font-family: 'Geist Mono', monospace;
     font-size: 14px;
     font-weight: 400;
+    color: #3a3a3a;
+  }
+
+  .storia-axis-spacer {
     flex: 1;
-    height: 30px;
-    display: flex; align-items: center; justify-content: center;
-    text-align: center;
-    line-height: 1;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    cursor: default;
-    transition: opacity .15s;
-    position: relative;
   }
 
-  .yr.dim {
-    background: transparent;
-    color: #2e2e2e;
-    border-color: transparent;
-  }
 
-  .yr.active {
-    background: transparent;
-    color: #2e2e2e;
-    border-color: transparent;
-  }
-
-  .yr.release-lp,
-  .yr.release-ep,
-  .yr.release-singolo,
-  .yr.founded {
-    cursor: pointer;
-    color: #b0b0b0;
-  }
-
-  .yr.release-lp::after,
-  .yr.release-ep::after,
-  .yr.release-singolo::after {
-    content: '';
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    position: absolute;
-    bottom: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .yr.release-lp::after { background: #4a8a5a; }
-  .yr.release-ep::after { background: #5a7fa0; }
-  .yr.release-singolo::after { background: #c8a440; }
-
-  .yr-tooltip {
-    position: fixed;
-    background: var(--surface2);
+  /* ── DOTS GRID ── */
+  .dg-wrap {
     border: 1px solid var(--border);
-    color: #b0b0b0;
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 4px 9px;
-    border-radius: 6px;
-    pointer-events: none;
-    display: none;
-    z-index: 9999;
-    white-space: pre;
+    border-radius: 9px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #1c1c1c;
   }
 
-  /* ── CHIPS (risultati per stato) ── */
+  .dg-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .dg-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #252525;
+    flex-shrink: 0;
+  }
+
+  /* ── TAB BAR ── */
+  .tab-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 0;
+  }
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: default;
+    pointer-events: none;
+    transition: border-color .15s;
+  }
+
+  .tab-btn.has-content {
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .tab-btn.has-content:hover {
+    border-color: rgba(160, 30, 20, 0.50);
+  }
+
+  .tab-btn.selected {
+    border-color: rgba(160, 30, 20, 0.50);
+  }
+
+  .tab-btn svg { display: block; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+/* ── CHIPS (risultati per stato) ── */
   .band-chips {
     display: flex;
     flex-wrap: wrap;
@@ -1231,6 +1290,11 @@
         <input class="search-input" id="search-input" placeholder="Cerca band..." autocomplete="off">
       </div>
       <div class="results-header hidden" id="results-header">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="album-filter-btn" id="album-filter-btn" onclick="toggleAlbumFilter()"></button>
+          <button class="ep-filter-btn" id="ep-filter-btn" onclick="toggleEpFilter()"></button>
+          <button class="demo-filter-btn" id="demo-filter-btn" onclick="toggleDemoFilter()"></button>
+        </div>
         <div class="results-count" id="results-count">0 BAND</div>
         <button class="clear-filter" id="clear-filter-btn" onclick="clearAllFilters()">✕ Rimuovi filtri</button>
       </div>
@@ -1257,7 +1321,8 @@
 
 <!-- ADD/EDIT MODAL -->
 <div id="map-tooltip"></div>
-<div id="yr-tooltip" class="yr-tooltip"></div>
+<div id="bar-tooltip-count"></div>
+<div id="bar-tooltip-country"></div>
 
 <div class="modal-backdrop" id="form-modal">
   <div class="modal">
@@ -1282,11 +1347,37 @@
           <input class="form-control" id="f-city" placeholder="es. Milano (opz.)">
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Anno di fondazione</label>
-          <input class="form-control" id="f-founded" placeholder="es. 1981 (opz.)" type="number" min="1900" max="2099">
+      <div class="form-group">
+        <label class="form-label">Periodi di attività</label>
+        <div id="f-cycles-list">
+          <div class="activity-cycle" data-cycle="0">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:6px; align-items:end;">
+              <div class="form-group" style="margin:0">
+                <label class="form-label" style="font-size:10px">Anno fondazione</label>
+                <input class="form-control cycle-founded-year" type="number" min="1900" max="2099" placeholder="es. 1981">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label" style="font-size:10px">Decennio fondazione</label>
+                <select class="form-control cycle-founded-decade">
+                  <option value="">—</option>
+                  <option value="1960">1960s</option><option value="1970">1970s</option><option value="1980">1980s</option><option value="1990">1990s</option><option value="2000">2000s</option><option value="2010">2010s</option><option value="2020">2020s</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label" style="font-size:10px">Anno scioglimento</label>
+                <input class="form-control cycle-split-year" type="number" min="1900" max="2099" placeholder="es. 1990">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label" style="font-size:10px">Decennio scioglimento</label>
+                <select class="form-control cycle-split-decade">
+                  <option value="">—</option>
+                  <option value="1960">1960s</option><option value="1970">1970s</option><option value="1980">1980s</option><option value="1990">1990s</option><option value="2000">2000s</option><option value="2010">2010s</option><option value="2020">2020s</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
+        <button type="button" onclick="addActivityCycle()" style="margin-top:6px; background:var(--surface2); border:1px solid var(--border); color:#b0b0b0; font-family:'Manrope',sans-serif; font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer; width:100%;">+ Aggiungi ciclo di attività</button>
       </div>
       <div class="form-group">
         <label class="form-label">Discografia</label>
@@ -1296,6 +1387,10 @@
       <div class="form-group">
         <label class="form-label">Connessioni</label>
         <input class="form-control" id="f-connections" placeholder="es. Judas Priest, Accept (opz.)">
+      </div>
+      <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+        <input type="checkbox" id="f-active" style="width:16px;height:16px;cursor:pointer;accent-color:#4caf6e;">
+        <label class="form-label" for="f-active" style="margin:0;cursor:pointer;">Attiva</label>
       </div>
       <button class="btn-save" onclick="saveBand()">
         <i class="fa fa-check"></i> Salva
@@ -1311,7 +1406,7 @@
       <div>
         <div class="detail-band-name" id="d-name"></div>
       </div>
-      <button class="modal-close" onclick="closeDetailModal()"><i class="fa fa-times"></i></button>
+      <div></div>
     </div>
     <div class="modal-body">
       <div class="detail-rows" id="detail-rows"></div>
@@ -1338,6 +1433,9 @@ const COUNTRIES = [
 let bands = JSON.parse(localStorage.getItem('albo-bands') || '[]');
 let activeFilter = null; // { type: 'letter'|'country'|'map', value }
 let searchQuery = '';
+let albumFilterActive = false;
+let epFilterActive = false;
+let demoFilterActive = false;
 let currentDetailId = null;
 
 function save() { localStorage.setItem('albo-bands', JSON.stringify(bands)); }
@@ -1348,6 +1446,22 @@ function getFiltered() {
     const q = searchQuery.toLowerCase();
     list = list.filter(b => b.name.toLowerCase().includes(q));
   }
+  if (albumFilterActive) {
+    list = list.filter(b => (b.disco || []).some(r => r.type === 'album'));
+  }
+  if (epFilterActive) {
+    list = list.filter(b => {
+      const disco = b.disco || [];
+      return disco.some(r => r.type === 'ep') && !disco.some(r => r.type === 'album');
+    });
+  }
+  if (demoFilterActive) {
+    list = list.filter(b => {
+      const disco = b.disco || [];
+      return disco.some(r => r.type === 'demo') && !disco.some(r => r.type === 'album') && !disco.some(r => r.type === 'ep');
+    });
+  }
+
   if (activeFilter) {
     if (activeFilter.type === 'letter') {
       list = list.filter(b => b.name.toLowerCase().startsWith(activeFilter.value.toLowerCase()));
@@ -1379,6 +1493,12 @@ function renderList() {
   const el = document.getElementById('band-list');
   const countEl = document.getElementById('results-count');
   const clearBtn = document.getElementById('clear-filter-btn');
+  const albumBtn = document.getElementById('album-filter-btn');
+  if (albumBtn) albumBtn.classList.toggle('active', albumFilterActive);
+  const epBtn = document.getElementById('ep-filter-btn');
+  if (epBtn) epBtn.classList.toggle('active', epFilterActive);
+  const demoBtn = document.getElementById('demo-filter-btn');
+  if (demoBtn) demoBtn.classList.toggle('active', demoFilterActive);
 
   const hasQuery = !!(activeFilter || searchQuery.trim());
   clearBtn.classList.toggle('visible', hasQuery);
@@ -1475,18 +1595,61 @@ function renderChart() {
     const flagEl = iso !== '++'
       ? `<span class="fi fi-${isoLower} bar-flag"></span>`
       : `<i class="fa fa-globe" style="font-size:18px;color:var(--muted)"></i>`;
-    return `<div class="bar-row" onclick="filterByCountry('${iso}')" title="${COUNTRIES.find(c=>c[0]===iso)?.[1]||iso}">
-      <div class="bar-label">
+    const countryName = COUNTRIES.find(c=>c[0]===iso)?.[1]||iso;
+    return `<div class="bar-row">
+      <div class="bar-label" onclick="filterByCountry('${iso}')" data-country="${countryName}" style="cursor:pointer">
         ${flagEl}
       </div>
-      <div class="bar-track">
+      <div class="bar-track" onclick="filterByCountry('${iso}')" data-count="${cnt}" style="cursor:pointer">
         <div class="bar-fill" style="width:${pct}%;background:${color};"></div>
       </div>
-      <div class="bar-num">${cnt}</div>
     </div>`;
   }).join('');
 
   wrap.innerHTML = `<div class="bar-chart">${rows}</div>`;
+  initBarTooltips();
+}
+
+
+// ─────────────────────────────────────────────
+// BAR CHART TOOLTIPS
+// ─────────────────────────────────────────────
+function initBarTooltips() {
+  const tooltipCount = document.getElementById('bar-tooltip-count');
+  const tooltipCountry = document.getElementById('bar-tooltip-country');
+  const wrap = document.getElementById('bar-chart-wrap');
+  if (!wrap) return;
+
+  wrap.addEventListener('mouseover', (e) => {
+    const track = e.target.closest('.bar-track');
+    const label = e.target.closest('.bar-label');
+    tooltipCount.style.display = 'none';
+    tooltipCountry.style.display = 'none';
+    if (track) {
+      tooltipCount.textContent = track.dataset.count;
+      tooltipCount.style.display = 'block';
+    } else if (label) {
+      tooltipCountry.textContent = label.dataset.country;
+      tooltipCountry.style.display = 'block';
+    }
+  });
+
+  wrap.addEventListener('mousemove', (e) => {
+    const active = tooltipCount.style.display === 'block' ? tooltipCount :
+                   tooltipCountry.style.display === 'block' ? tooltipCountry : null;
+    if (active) {
+      active.style.left = (e.clientX + 14) + 'px';
+      active.style.top = (e.clientY - 28) + 'px';
+    }
+  });
+
+  wrap.addEventListener('mouseout', (e) => {
+    const related = e.relatedTarget;
+    if (!related || (!related.closest?.('.bar-track') && !related.closest?.('.bar-label'))) {
+      tooltipCount.style.display = 'none';
+      tooltipCountry.style.display = 'none';
+    }
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -1519,9 +1682,31 @@ function clearKeypad() {
   document.querySelectorAll('.key').forEach(k => k.classList.remove('active'));
 }
 
+
+function toggleAlbumFilter() {
+  albumFilterActive = !albumFilterActive;
+  if (albumFilterActive) { epFilterActive = false; demoFilterActive = false; }
+  renderList();
+}
+
+function toggleEpFilter() {
+  epFilterActive = !epFilterActive;
+  if (epFilterActive) { albumFilterActive = false; demoFilterActive = false; }
+  renderList();
+}
+
+function toggleDemoFilter() {
+  demoFilterActive = !demoFilterActive;
+  if (demoFilterActive) { albumFilterActive = false; epFilterActive = false; }
+  renderList();
+}
+
 function clearAllFilters() {
   activeFilter = null;
   searchQuery = '';
+  albumFilterActive = false;
+  epFilterActive = false;
+  demoFilterActive = false;
   document.getElementById('search-input').value = '';
   clearKeypad();
   renderList();
@@ -1541,6 +1726,81 @@ function buildKeypad() {
 // ─────────────────────────────────────────────
 // DISCOGRAPHY FORM
 // ─────────────────────────────────────────────
+
+function addActivityCycle() {
+  const wrap = document.getElementById('f-cycles-list');
+  const idx = wrap.querySelectorAll('.activity-cycle').length;
+  const div = document.createElement('div');
+  div.className = 'activity-cycle';
+  div.dataset.cycle = idx;
+  div.innerHTML = `
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr 28px; gap:8px; margin-bottom:6px; align-items:end;">
+      <div class="form-group" style="margin:0">
+        <label class="form-label" style="font-size:10px">Anno fondazione</label>
+        <input class="form-control cycle-founded-year" type="number" min="1900" max="2099" placeholder="es. 1981">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label" style="font-size:10px">Decennio fondazione</label>
+        <select class="form-control cycle-founded-decade">
+          <option value="">—</option>
+          <option value="1960">1960s</option><option value="1970">1970s</option><option value="1980">1980s</option><option value="1990">1990s</option><option value="2000">2000s</option><option value="2010">2010s</option><option value="2020">2020s</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label" style="font-size:10px">Anno scioglimento</label>
+        <input class="form-control cycle-split-year" type="number" min="1900" max="2099" placeholder="es. 1990">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label" style="font-size:10px">Decennio scioglimento</label>
+        <select class="form-control cycle-split-decade">
+          <option value="">—</option>
+          <option value="1960">1960s</option><option value="1970">1970s</option><option value="1980">1980s</option><option value="1990">1990s</option><option value="2000">2000s</option><option value="2010">2010s</option><option value="2020">2020s</option>
+        </select>
+      </div>
+      <button type="button" onclick="this.closest('.activity-cycle').remove()" style="background:transparent; border:1px solid var(--border); color:var(--muted); border-radius:6px; cursor:pointer; height:36px; font-size:14px; align-self:end;">×</button>
+    </div>
+  `;
+  wrap.appendChild(div);
+}
+
+function getCycles() {
+  return Array.from(document.querySelectorAll('.activity-cycle')).map(row => ({
+    foundedYear: row.querySelector('.cycle-founded-year').value.trim(),
+    foundedDecade: row.querySelector('.cycle-founded-decade').value,
+    splitYear: row.querySelector('.cycle-split-year').value.trim(),
+    splitDecade: row.querySelector('.cycle-split-decade').value,
+  })).filter(c => c.foundedYear || c.foundedDecade || c.splitYear || c.splitDecade);
+}
+
+function setCycles(cycles) {
+  const wrap = document.getElementById('f-cycles-list');
+  // Clear extra cycles (keep first)
+  Array.from(wrap.querySelectorAll('.activity-cycle')).slice(1).forEach(el => el.remove());
+  const first = wrap.querySelector('.activity-cycle');
+  if (cycles.length === 0) {
+    first.querySelector('.cycle-founded-year').value = '';
+    first.querySelector('.cycle-founded-decade').value = '';
+    first.querySelector('.cycle-split-year').value = '';
+    first.querySelector('.cycle-split-decade').value = '';
+    return;
+  }
+  // Fill first cycle
+  first.querySelector('.cycle-founded-year').value = cycles[0].foundedYear || '';
+  first.querySelector('.cycle-founded-decade').value = cycles[0].foundedDecade || '';
+  first.querySelector('.cycle-split-year').value = cycles[0].splitYear || '';
+  first.querySelector('.cycle-split-decade').value = cycles[0].splitDecade || '';
+  // Add remaining cycles
+  for (let i = 1; i < cycles.length; i++) {
+    addActivityCycle();
+    const rows = wrap.querySelectorAll('.activity-cycle');
+    const row = rows[i];
+    row.querySelector('.cycle-founded-year').value = cycles[i].foundedYear || '';
+    row.querySelector('.cycle-founded-decade').value = cycles[i].foundedDecade || '';
+    row.querySelector('.cycle-split-year').value = cycles[i].splitYear || '';
+    row.querySelector('.cycle-split-decade').value = cycles[i].splitDecade || '';
+  }
+}
+
 function addDiscoRow(data = {}) {
   const wrap = document.getElementById('f-disco-list');
   const row = document.createElement('div');
@@ -1549,9 +1809,11 @@ function addDiscoRow(data = {}) {
   row.innerHTML = `
     <input class="form-control disco-year" type="number" min="1900" max="2099" placeholder="Anno" value="${data.year || ''}" style="padding:8px 10px; font-size:13px;">
     <select class="form-control disco-type" style="padding:8px 10px; font-size:13px;">
-      <option value="lp"${data.type==='lp'?' selected':''}>LP</option>
-      <option value="ep"${data.type==='ep'?' selected':''}>EP</option>
-      <option value="singolo"${data.type==='singolo'?' selected':''}>Singolo</option>
+      <option value="album"${data.type==='album'?' selected':''}>Album</option>
+      <option value="antologia"${data.type==='antologia'?' selected':''}>Antologia</option>
+      <option value="compilation"${data.type==='compilation'?' selected':''}>Compilation/Split</option>
+      <option value="demo"${data.type==='demo'?' selected':''}>Demo</option>
+      <option value="ep"${data.type==='ep'?' selected':''}>EP/Singolo</option>
     </select>
     <input class="form-control disco-title" type="text" placeholder="Titolo (opz.)" value="${data.title || ''}" style="padding:8px 10px; font-size:13px;">
     <button type="button" onclick="this.closest('.disco-row').remove()" style="background:transparent; border:1px solid var(--border); color:var(--muted); border-radius:6px; cursor:pointer; height:36px; font-size:14px;">×</button>
@@ -1573,92 +1835,136 @@ function moveDiscoRow(row, dir) {
   else wrap.insertBefore(rows[target], row);
 }
 
-// ─────────────────────────────────────────────
-// TIMELINE
-// ─────────────────────────────────────────────
-function renderTimeline(b) {
-  const container = document.getElementById('detail-rows');
 
-  // Determine start year
-  const foundedYear = b.founded ? parseInt(b.founded) : null;
+
+
+
+// ─────────────────────────────────────────────
+// DOTS GRID
+// ─────────────────────────────────────────────
+function renderDotsGrid(b) {
+  const currentDecade = Math.floor(new Date().getFullYear() / 10) * 10;
+  let h = '<div class="dg-wrap" id="dg-wrap">';
+  for (let decade = 1960; decade <= currentDecade; decade += 10) {
+    h += '<div class="dg-row">';
+    for (let y = decade; y < decade + 10; y++) {
+      h += `<div class="dg-dot" data-year="${y}"></div>`;
+    }
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+function adjustDotsGridGap() {
+  const wrap = document.getElementById('dg-wrap');
+  if (!wrap) return;
+  requestAnimationFrame(() => {
+    const firstRow = wrap.querySelector('.dg-row');
+    if (!firstRow) return;
+    const dots = firstRow.querySelectorAll('.dg-dot');
+    if (dots.length < 2) return;
+    const rowWidth = firstRow.offsetWidth;
+    const dotSize = dots[0].offsetWidth;
+    const n = dots.length;
+    const gap = (rowWidth - n * dotSize) / (n - 1);
+    wrap.style.gap = Math.round(gap) + 'px';
+  });
+}
+
+// ─────────────────────────────────────────────
+// STORIA
+// ─────────────────────────────────────────────
+function renderStoria(b) {
+  const CURRENT_DECADE = 2020;
+  const cycles = b.cycles || [];
+  const first = cycles[0] || {};
+  const foundedYear = first.foundedYear ? parseInt(first.foundedYear) : null;
+  const foundedDecade = first.foundedDecade ? parseInt(first.foundedDecade) : null;
+  const splitYear = first.splitYear ? parseInt(first.splitYear) : null;
+  const splitDecade = first.splitDecade ? parseInt(first.splitDecade) : null;
   const disco = b.disco || [];
   const discoYears = disco.map(r => parseInt(r.year)).filter(y => !isNaN(y));
+  const isActive = !!b.active;
 
-  if (!foundedYear && discoYears.length === 0) return;
+  // Determine start decade
+  let startDecade = null;
+  if (foundedYear) startDecade = Math.floor(foundedYear / 10) * 10;
+  else if (foundedDecade) startDecade = foundedDecade;
+  else if (discoYears.length > 0) startDecade = Math.floor(Math.min(...discoYears) / 10) * 10;
+  if (startDecade === null) return '';
 
-  const startYear = foundedYear || Math.min(...discoYears);
-  const lastDiscoYear = discoYears.length > 0 ? Math.max(...discoYears) : startYear;
-  const endYear = lastDiscoYear;
+  // Determine end decade
+  let endDecade = null;
+  if (isActive) {
+    endDecade = CURRENT_DECADE;
+  } else if (splitYear) {
+    endDecade = Math.floor(splitYear / 10) * 10;
+  } else if (splitDecade) {
+    endDecade = splitDecade;
+  } else if (discoYears.length > 0) {
+    endDecade = Math.floor(Math.max(...discoYears) / 10) * 10;
+  } else {
+    endDecade = startDecade;
+  }
 
-  const startDecade = Math.floor(startYear / 10) * 10;
-  const endDecade = Math.floor(endYear / 10) * 10;
-
-  // Build release map — multiple releases per year: same type shows both titles, else highest priority wins
+  // Build release map
+  const typePriority = { album: 5, antologia: 4, compilation: 3, demo: 2, ep: 1 };
   const releaseMap = {};
-  const typePriority = { lp: 3, ep: 2, singolo: 1 };
   disco.forEach(r => {
     const y = parseInt(r.year);
     if (isNaN(y)) return;
-    if (!releaseMap[y]) {
-      releaseMap[y] = { ...r, titles: r.title ? [r.title] : [] };
-    } else {
-      const existing = releaseMap[y];
-      if (r.type === existing.type) {
-        // Same type: merge titles alphabetically
-        if (r.title) existing.titles.push(r.title);
-        existing.titles.sort();
-      } else if ((typePriority[r.type] || 0) > (typePriority[existing.type] || 0)) {
-        // Higher priority type wins
-        releaseMap[y] = { ...r, titles: r.title ? [r.title] : [] };
-      }
+    if (!releaseMap[y]) releaseMap[y] = { ...r, titles: r.title ? [r.title] : [] };
+    else {
+      const ex = releaseMap[y];
+      if (r.type === ex.type) { if (r.title) ex.titles.push(r.title); ex.titles.sort(); }
+      else if ((typePriority[r.type]||0) > (typePriority[ex.type]||0)) releaseMap[y] = { ...r, titles: r.title ? [r.title] : [] };
     }
   });
 
-  const tooltip = document.getElementById('yr-tooltip');
+  const releaseColors = { album: '#4caf6e', antologia: '#f5a623', compilation: '#f06292', demo: '#ef5350', ep: '#f5e642' };
 
-  let html = '<div class="detail-row"><span class="detail-label">Timeline</span><div class="timeline-wrap">';
-  for (let decade = startDecade; decade <= endDecade; decade += 10) {
-    html += `<div class="timeline-decade">`;
-
-    html += `<div class="timeline-years">`;
-    for (let y = decade; y < decade + 10; y++) {
-      const isDim = y < startYear;
-      const isActive = y >= startYear;
-      const isFounded = foundedYear && y === foundedYear;
-      const release = releaseMap[y];
-      const shortY = String(y).slice(2);
-
-      let cls = 'yr';
-      if (isDim) cls += ' dim';
-      else cls += ' active';
-      if (isFounded) cls += ' founded';
-      if (release) cls += ` release-${release.type}`;
-
-      const titleAttr = release?.titles?.length ? `data-title="${release.titles.join('\n')}"` : '';
-
-      html += `<div class="${cls}" ${titleAttr}>${shortY}</div>`;
-    }
-    html += `</div></div>`;
+  // Axis row: 2 spacers + 0-9
+  let h = '<div class="storia-wrap">';
+  h += '<div class="storia-row">';
+  h += '<div class="storia-axis-spacer"></div>';
+  h += '<div class="storia-axis-spacer"></div>';
+  for (let d = 0; d <= 9; d++) {
+    h += `<div class="storia-cell"><span class="storia-label">${d}</span></div>`;
   }
-  html += '</div></div>';
+  h += '</div>';
 
-  container.insertAdjacentHTML('beforeend', html);
-
-  // Tooltip events
-  container.querySelectorAll('.yr[data-title]').forEach(el => {
-    el.addEventListener('mouseenter', (e) => {
-      tooltip.innerText = el.dataset.title;
-      tooltip.style.display = 'block';
-    });
-    el.addEventListener('mousemove', (e) => {
-      tooltip.style.left = (e.clientX + 14) + 'px';
-      tooltip.style.top = (e.clientY - 28) + 'px';
-    });
-    el.addEventListener('mouseleave', () => {
-      tooltip.style.display = 'none';
-    });
-  });
+  // Decade rows
+  for (let decade = startDecade; decade <= endDecade; decade += 10) {
+    const decId = String(decade).slice(-2, -1); // e.g. 1970 -> "7", 2020 -> "2"
+    h += '<div class="storia-row">';
+    // Decade dot
+    h += '<div class="storia-cell"><div class="storia-dot"></div></div>';
+    // Decade label
+    h += `<div class="storia-cell"><span class="storia-label">${decId}</span></div>`;
+    // 10 year dots
+    for (let y = decade; y < decade + 10; y++) {
+      const release = releaseMap[y];
+      const isFounded = foundedYear && y === foundedYear;
+      const isSplit = splitYear && y === splitYear;
+      let color = '#3a3a3a';
+      let titleAttr = '';
+      if (release) {
+        color = releaseColors[release.type] || '#3a3a3a';
+        if (release.titles?.length) titleAttr = `data-title="${release.titles.join('\n')}"`;
+      }
+      h += `<div class="storia-cell" ${titleAttr}><div class="storia-dot" style="background:${color}"></div></div>`;
+    }
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
 }
+
+// ─────────────────────────────────────────────
+// TIMELINE
+// ─────────────────────────────────────────────
+
 
 // ─────────────────────────────────────────────
 // FORM MODAL
@@ -1671,7 +1977,8 @@ function openFormModal(id = null) {
   document.getElementById('f-city').value = '';
   document.getElementById('f-related').value = '';
   document.getElementById('f-connections').value = '';
-  document.getElementById('f-founded').value = '';
+  document.getElementById('f-active').checked = false;
+  setCycles([]);
   document.getElementById('f-disco-list').innerHTML = '';
   if (id) {
     const b = bands.find(x => x.id === id);
@@ -1681,7 +1988,8 @@ function openFormModal(id = null) {
       document.getElementById('f-city').value = b.city || '';
       document.getElementById('f-related').value = b.related || '';
       document.getElementById('f-connections').value = b.connections || '';
-      document.getElementById('f-founded').value = b.founded || '';
+      document.getElementById('f-active').checked = !!b.active;
+      setCycles(b.cycles || []);
       (b.disco || []).forEach(r => addDiscoRow(r));
     }
   }
@@ -1700,7 +2008,9 @@ function saveBand() {
   const city = document.getElementById('f-city').value.trim();
   const related = document.getElementById('f-related').value.trim();
   const connections = document.getElementById('f-connections').value.trim();
-  const founded = document.getElementById('f-founded').value.trim();
+  const cycles = getCycles();
+  const founded = cycles[0]?.foundedYear || '';
+  const active = document.getElementById('f-active').checked;
   const disco = Array.from(document.querySelectorAll('.disco-row')).map(row => ({
     year: row.querySelector('.disco-year').value.trim(),
     type: row.querySelector('.disco-type').value,
@@ -1712,10 +2022,10 @@ function saveBand() {
 
   if (editId) {
     const idx = bands.findIndex(b => b.id === editId);
-    if (idx !== -1) { bands[idx] = { ...bands[idx], name, country, city, related, connections, founded, disco }; }
+    if (idx !== -1) { bands[idx] = { ...bands[idx], name, country, city, related, connections, founded, cycles, disco, active }; }
     showToast('Band aggiornata!');
   } else {
-    bands.push({ id: Date.now().toString(), name, country, city, related, connections, founded, disco });
+    bands.push({ id: Date.now().toString(), name, country, city, related, connections, founded, cycles, disco, active });
     showToast('Band aggiunta!');
   }
 
@@ -1767,12 +2077,91 @@ function openDetail(id) {
     </div>`);
   }
 
-  document.getElementById('detail-rows').innerHTML = rows.join('');
-  renderTimeline(b);
+  const dotsGridHtml = renderDotsGrid(b);
+  const storiaHtml = renderStoria(b);
+  // Build tab contents
+  const tabContents = {
+    'public': rows.find(r => r.includes('detail-label">Stato')) || '',
+    'location_on': rows.find(r => r.includes('Luogo di provenienza')) || '',
+    'alternate': rows.find(r => r.includes('Alias')) || '',
+    'link': rows.find(r => r.includes('Connessioni')) || '',
+    'timeline': `<div class="detail-row">${dotsGridHtml}</div>`,
+  };
+
+  const tabOrder = ['public','location_on','alternate','link','timeline'];
+  const tabIcons = {
+    'public': `<svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#252525"><path d="M324-111.5Q251-143 197-197t-85.5-127Q80-397 80-480t31.5-156Q143-709 197-763t127-85.5Q397-880 480-880t156 31.5Q709-817 763-763t85.5 127Q880-563 880-480t-31.5 156Q817-251 763-197t-127 85.5Q563-80 480-80t-156-31.5ZM440-162v-78q-33 0-56.5-23.5T360-320v-40L168-552q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-162Zm276-102q41-45 62.5-100.5T800-480q0-98-54.5-179T600-776v16q0 33-23.5 56.5T520-680h-80v80q0 17-11.5 28.5T400-560h-80v80h240q17 0 28.5 11.5T600-440v120h40q26 0 47 15.5t29 40.5Z"/></svg>`,
+    'location_on': `<svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#252525"><path d="M536.5-503.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5ZM480-186q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>`,
+    'alternate': `<svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#252525"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480v58q0 59-40.5 100.5T740-280q-35 0-66-15t-52-43q-29 29-65.5 43.5T480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480v58q0 26 17 44t43 18q26 0 43-18t17-44v-58q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93h160q17 0 28.5 11.5T680-120q0 17-11.5 28.5T640-80H480Zm85-315q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Z"/></svg>`,
+    'link': `<svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#252525"><path d="M280-280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h120q17 0 28.5 11.5T440-640q0 17-11.5 28.5T400-600H280q-50 0-85 35t-35 85q0 50 35 85t85 35h120q17 0 28.5 11.5T440-320q0 17-11.5 28.5T400-280H280Zm80-160q-17 0-28.5-11.5T320-480q0-17 11.5-28.5T360-520h240q17 0 28.5 11.5T640-480q0 17-11.5 28.5T600-440H360Zm200 160q-17 0-28.5-11.5T520-320q0-17 11.5-28.5T560-360h120q50 0 85-35t35-85q0-50-35-85t-85-35H560q-17 0-28.5-11.5T520-640q0-17 11.5-28.5T560-680h120q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H560Z"/></svg>`,
+    'timeline': `<svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#252525"><path d="M120-240q-33 0-56.5-23.5T40-320q0-33 23.5-56.5T120-400h10.5q4.5 0 9.5 2l182-182q-2-5-2-9.5V-600q0-33 23.5-56.5T400-680q33 0 56.5 23.5T480-600q0 2-2 20l102 102q5-2 9.5-2h21q4.5 0 9.5 2l142-142q-2-5-2-9.5V-640q0-33 23.5-56.5T840-720q33 0 56.5 23.5T920-640q0 33-23.5 56.5T840-560h-10.5q-4.5 0-9.5-2L678-420q2 5 2 9.5v10.5q0 33-23.5 56.5T600-320q-33 0-56.5-23.5T520-400v-10.5q0-4.5 2-9.5L420-522q-5 2-9.5 2H400q-2 0-20-2L198-340q2 5 2 9.5v10.5q0 33-23.5 56.5T120-240Z"/></svg>`,
+  };
+
+  // Tab bar
+  let tabBar = '<div class="tab-bar">';
+  let firstActive = null;
+  tabOrder.forEach((key) => {
+    const hasContent = !!tabContents[key];
+    const cls = hasContent ? ' has-content' : '';
+    const fill = hasContent ? '#3a3a3a' : '#252525';
+    const iconHtml = tabIcons[key].replace(/fill="[^"]*"/, `fill="${fill}"`);
+    const onclick = hasContent ? ` onclick="switchTab('${key}')"` : '';
+    tabBar += `<button class="tab-btn${cls}" id="tab-btn-${key}"${onclick}>${iconHtml}</button>`;
+    if (hasContent && firstActive === null) firstActive = key;
+  });
+  tabBar += '</div>';
+
+  // Tab content panels
+  let tabPanels = '';
+  tabOrder.forEach((key) => {
+    tabPanels += `<div class="tab-content" id="tab-${key}">${tabContents[key]}</div>`;
+  });
+
+  const storiaSection = storiaHtml ? `<div class="detail-row"><span class="detail-label">Storia</span>${storiaHtml}</div>` : '';
+
+  document.getElementById('detail-rows').innerHTML = tabBar + tabPanels + storiaSection;
+  adjustDotsGridGap();
+
   document.getElementById('d-edit').onclick = () => { closeDetailModal(); openFormModal(id); };
   document.getElementById('d-delete').onclick = () => deleteBand(id);
 
   document.getElementById('detail-modal').classList.add('open');
+
+  // Shrink band name font to fit single line
+  const nameEl = document.getElementById('d-name');
+  nameEl.style.fontSize = '28px';
+  requestAnimationFrame(() => {
+    const modal = document.querySelector('.detail-modal .modal');
+    const available = modal ? modal.clientWidth - 48 : 300;
+    let size = 28;
+    while (size > 10) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.font = `500 ${size}px Manrope`;
+      const w = ctx.measureText(nameEl.textContent).width;
+      if (w <= available) break;
+      size--;
+    }
+    nameEl.style.fontSize = size + 'px';
+  });
+}
+
+
+
+
+function switchTab(key) {
+  const btn = document.getElementById('tab-btn-' + key);
+  const panel = document.getElementById('tab-' + key);
+  const isSelected = btn && btn.classList.contains('selected');
+  // Deselect all
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  // If was not selected, select it
+  if (!isSelected) {
+    if (btn) btn.classList.add('selected');
+    if (panel) panel.classList.add('active');
+    if (key === 'timeline') adjustDotsGridGap();
+  }
 }
 
 function closeDetailModal() {
@@ -1958,6 +2347,7 @@ function initMap() {
 buildCountrySelect();
 render();
 initMap();
+initBarTooltips();
 </script>
 </body>
 </html>
