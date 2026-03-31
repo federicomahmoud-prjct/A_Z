@@ -303,7 +303,7 @@
   .modal-header {
     padding: 24px 24px 0;
     display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
 
   .modal-title {
@@ -405,7 +405,9 @@
     overflow: hidden;
   }
 
-  .detail-rows { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
+  .detail-rows { display: flex; flex-direction: column; gap: 12px; margin: 0; }
+  #d-pills:not(:empty) { margin-top: 12px; margin-bottom: 12px; }
+  #d-pills:empty { display: none; }
 
   .detail-row {
     display: flex; flex-direction: column; gap: 5px;
@@ -463,23 +465,6 @@
   .related-link:hover { color: #e8a0a0; }
 
   .detail-actions { display: flex; gap: 10px; }
-
-  .btn-edit, .btn-delete {
-    flex: 1;
-    padding: 10px;
-    border-radius: 9px;
-    border: 1px solid #2e2e2e;
-    background: transparent;
-    color: #2e2e2e;
-    font-family: 'Manrope', sans-serif;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    transition: border-color .2s, color .2s;
-  }
-
-  .btn-edit:hover, .btn-edit:active { border-color: #3a3a3a; color: #3a3a3a; }
-  .btn-delete:hover, .btn-delete:active { border-color: #3a3a3a; color: #3a3a3a; }
 
   /* ── FOOTER ── */
   footer {
@@ -761,6 +746,29 @@
     flex-shrink: 0;
   }
 
+
+  /* ── DETAIL ACTION BTNS ── */
+  .detail-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+  }
+
+  .tab-btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: fill .2s;
+  }
+
+  .tab-btn-action svg { transition: fill .2s; }
+  .tab-btn-action:hover svg { fill: #3a3a3a; }
+  .tab-btn-delete:hover svg { fill: #ef5350; }
+
   /* ── TAB BAR ── */
   .tab-bar {
     display: flex;
@@ -776,13 +784,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px;
-    border-radius: 6px;
-    border: 1px solid transparent;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid #2e2e2e;
     background: transparent;
     cursor: default;
     pointer-events: none;
-    transition: border-color .15s;
+    transition: border-color .2s;
+    flex-shrink: 0;
   }
 
   .tab-btn.has-content {
@@ -790,10 +800,16 @@
     pointer-events: auto;
   }
 
+  .tab-btn.has-content:hover { border-color: #3a3a3a; }
+  .tab-btn.selected { border-color: #3a3a3a; }
+  .tab-btn-delete-action:hover { border-color: #ef5350 !important; }
+
   .tab-btn svg { display: block; transition: fill .2s; }
+  .tab-btn svg { fill: #2e2e2e; }
   .tab-btn.has-content svg { fill: #2e2e2e; }
   .tab-btn.has-content:hover svg { fill: #3a3a3a; }
   .tab-btn.selected svg { fill: #3a3a3a; }
+  .tab-btn-delete-action:hover svg { fill: #ef5350 !important; }
 
   .tab-content { display: none; }
   .tab-content.active { display: block; }
@@ -1395,18 +1411,12 @@
 <!-- DETAIL MODAL -->
 <div class="modal-backdrop detail-modal" id="detail-modal">
   <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="detail-band-name" id="d-name"></div>
-      </div>
-      <div></div>
+    <div class="modal-header" style="padding: 24px 24px 0;">
+      <div class="detail-band-name" id="d-name"></div>
     </div>
     <div class="modal-body">
+      <div id="d-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       <div class="detail-rows" id="detail-rows"></div>
-      <div class="detail-actions">
-        <button class="btn-edit" id="d-edit"><i class="fa fa-pen"></i> Modifica</button>
-        <button class="btn-delete" id="d-delete"><i class="fa fa-trash"></i> Elimina</button>
-      </div>
     </div>
   </div>
 </div>
@@ -2131,6 +2141,24 @@ function openDetail(id) {
 
   document.getElementById('d-name').textContent = b.name;
 
+  // Build alias + connections pills below name
+  const pillsEl = document.getElementById('d-pills');
+  let pillsHtml = '';
+  if (b.related && b.related.trim()) {
+    b.related.split(',').map(r => r.trim()).filter(Boolean).forEach(r => {
+      pillsHtml += `<span class="detail-pill">${r}</span>`;
+    });
+  }
+  if (b.connections && b.connections.trim()) {
+    b.connections.split(',').map(r => r.trim()).filter(Boolean).forEach(r => {
+      const found = bands.find(x => x.name.toLowerCase() === r.toLowerCase());
+      pillsHtml += found
+        ? `<span class="detail-pill clickable" onclick="openDetail('${found.id}')">${r}</span>`
+        : `<span class="detail-pill">${r}</span>`;
+    });
+  }
+  if (pillsEl) pillsEl.innerHTML = pillsHtml;
+
   const rows = [];
   const countryName = COUNTRIES.find(c => c[0] === b.country)?.[1] || b.country;
   rows.push(`<div class="detail-row">
@@ -2174,46 +2202,49 @@ function openDetail(id) {
   const tabContents = {
     'public': stripLabel(rows.find(r => r.includes('detail-label">Stato')) || ''),
     'location_on': stripLabel(rows.find(r => r.includes('Luogo di provenienza')) || ''),
-    'alternate': stripLabel(rows.find(r => r.includes('Alias')) || ''),
-    'link': stripLabel(rows.find(r => r.includes('Connessioni')) || ''),
     'timeline': `<div class="detail-row">${dotsGridHtml}</div>`,
   };
 
-  const tabOrder = ['public','location_on','alternate','link','timeline'];
+  const tabOrder = ['public','location_on','timeline','edit','delete'];
   const tabIcons = {
+    'edit': `<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#2e2e2e"><path d="M200-200h57l391-391-57-57-391 391v57Zm-40 80q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm600-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`,
+    'delete': `<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#2e2e2e"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>`,
     'public': `<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#252525"><path d="M324-111.5Q251-143 197-197t-85.5-127Q80-397 80-480t31.5-156Q143-709 197-763t127-85.5Q397-880 480-880t156 31.5Q709-817 763-763t85.5 127Q880-563 880-480t-31.5 156Q817-251 763-197t-127 85.5Q563-80 480-80t-156-31.5ZM440-162v-78q-33 0-56.5-23.5T360-320v-40L168-552q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-162Zm276-102q41-45 62.5-100.5T800-480q0-98-54.5-179T600-776v16q0 33-23.5 56.5T520-680h-80v80q0 17-11.5 28.5T400-560h-80v80h240q17 0 28.5 11.5T600-440v120h40q26 0 47 15.5t29 40.5Z"/></svg>`,
     'location_on': `<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#252525"><path d="M536.5-503.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5ZM480-186q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>`,
-    'alternate': `<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#252525"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480v58q0 59-40.5 100.5T740-280q-35 0-66-15t-52-43q-29 29-65.5 43.5T480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480v58q0 26 17 44t43 18q26 0 43-18t17-44v-58q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93h160q17 0 28.5 11.5T680-120q0 17-11.5 28.5T640-80H480Zm85-315q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Z"/></svg>`,
-    'link': `<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#252525"><path d="M280-280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h120q17 0 28.5 11.5T440-640q0 17-11.5 28.5T400-600H280q-50 0-85 35t-35 85q0 50 35 85t85 35h120q17 0 28.5 11.5T440-320q0 17-11.5 28.5T400-280H280Zm80-160q-17 0-28.5-11.5T320-480q0-17 11.5-28.5T360-520h240q17 0 28.5 11.5T640-480q0 17-11.5 28.5T600-440H360Zm200 160q-17 0-28.5-11.5T520-320q0-17 11.5-28.5T560-360h120q50 0 85-35t35-85q0-50-35-85t-85-35H560q-17 0-28.5-11.5T520-640q0-17 11.5-28.5T560-680h120q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H560Z"/></svg>`,
     'timeline': `<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#252525"><path d="M120-240q-33 0-56.5-23.5T40-320q0-33 23.5-56.5T120-400h10.5q4.5 0 9.5 2l182-182q-2-5-2-9.5V-600q0-33 23.5-56.5T400-680q33 0 56.5 23.5T480-600q0 2-2 20l102 102q5-2 9.5-2h21q4.5 0 9.5 2l142-142q-2-5-2-9.5V-640q0-33 23.5-56.5T840-720q33 0 56.5 23.5T920-640q0 33-23.5 56.5T840-560h-10.5q-4.5 0-9.5-2L678-420q2 5 2 9.5v10.5q0 33-23.5 56.5T600-320q-33 0-56.5-23.5T520-400v-10.5q0-4.5 2-9.5L420-522q-5 2-9.5 2H400q-2 0-20-2L198-340q2 5 2 9.5v10.5q0 33-23.5 56.5T120-240Z"/></svg>`,
   };
 
   // Tab bar
   let tabBar = '<div class="tab-bar">';
-  let firstActive = null;
   tabOrder.forEach((key) => {
-    const hasContent = !!tabContents[key];
-    const cls = hasContent ? ' has-content' : '';
-    const iconHtml = tabIcons[key]; // fill handled by CSS
-    const onclick = hasContent ? ` onclick="switchTab('${key}')"` : '';
-    tabBar += `<button class="tab-btn${cls}" id="tab-btn-${key}"${onclick}>${iconHtml}</button>`;
-    if (hasContent && firstActive === null) firstActive = key;
+    if (key === 'edit') {
+      tabBar += `<button class="tab-btn has-content" id="tab-btn-edit" onclick="closeDetailModal();openFormModal('${b.id}')">${tabIcons['edit']}</button>`;
+    } else if (key === 'delete') {
+      tabBar += `<button class="tab-btn has-content tab-btn-delete-action" id="tab-btn-delete" onclick="deleteBand('${b.id}')">${tabIcons['delete']}</button>`;
+    } else {
+      const hasContent = !!tabContents[key];
+      const cls = hasContent ? ' has-content' : '';
+      const iconHtml = tabIcons[key];
+      const onclick = hasContent ? ` onclick="switchTab('${key}')"` : '';
+      tabBar += `<button class="tab-btn${cls}" id="tab-btn-${key}"${onclick}>${iconHtml}</button>`;
+    }
   });
   tabBar += '</div>';
 
   // Tab content panels
   let tabPanels = '';
   tabOrder.forEach((key) => {
+    if (key === 'edit' || key === 'delete') return;
     tabPanels += `<div class="tab-content" id="tab-${key}">${tabContents[key]}</div>`;
   });
 
   document.getElementById('detail-rows').innerHTML = tabBar + tabPanels;
   adjustDotsGridGap();
 
-  document.getElementById('d-edit').onclick = () => { closeDetailModal(); openFormModal(id); };
-  document.getElementById('d-delete').onclick = () => deleteBand(id);
+
 
   document.getElementById('detail-modal').classList.add('open');
+  requestAnimationFrame(() => syncActionGap());
 
   // Shrink band name font to fit single line
   const nameEl = document.getElementById('d-name');
@@ -2236,6 +2267,19 @@ function openDetail(id) {
 
 
 
+
+
+function syncActionGap() {
+  const tabBar = document.querySelector('.tab-bar');
+  const actions = document.getElementById('detail-actions');
+  if (!tabBar || !actions) return;
+  requestAnimationFrame(() => {
+    const btns = tabBar.querySelectorAll('.tab-btn');
+    if (btns.length < 2) return;
+    const gap = btns[1].getBoundingClientRect().left - btns[0].getBoundingClientRect().right;
+    actions.style.gap = Math.round(gap) + 'px';
+  });
+}
 
 function switchTab(key) {
   const btn = document.getElementById('tab-btn-' + key);
